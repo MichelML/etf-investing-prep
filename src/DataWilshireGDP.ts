@@ -1,4 +1,4 @@
-export const Data = [
+export const DataWilshireGDP = [
   {
     DATE: "1971-01-01",
     RATIO: 0.253735185
