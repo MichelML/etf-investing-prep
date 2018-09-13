@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/lodash": "^4.14.116",
+    "@types/react-select": "^2.0.3",
     "autoprefixer": "7.1.6",
     "babel-jest": "^22.1.0",
     "babel-loader": "^7.1.2",
@@ -18,6 +20,7 @@
     "fs-extra": "3.0.1",
     "html-webpack-plugin": "2.29.0",
     "jest": "22.4.2",
+    "lodash": "^4.17.10",
     "object-assign": "4.1.1",
     "postcss-flexbugs-fixes": "3.2.0",
     "postcss-loader": "2.0.8",
@@ -26,6 +29,7 @@
     "react": "^16.5.0",
     "react-dev-utils": "^5.0.1",
     "react-dom": "^16.5.0",
+    "react-select": "^2.0.0",
     "resolve": "1.6.0",
     "source-map-loader": "^0.2.1",
     "style-loader": "0.19.0",
@@ -36,6 +40,7 @@
     "tslint": "^5.7.0",
     "tslint-config-prettier": "^1.10.0",
     "tslint-react": "^3.2.0",
+    "typescript-formatter": "^7.2.2",
     "uglifyjs-webpack-plugin": "^1.1.8",
     "url-loader": "0.6.2",
     "webpack": "3.8.1",
@@ -47,8 +52,6 @@
     "@types/chart.js": "^2.7.32",
     "@types/jest": "^23.3.1",
     "@types/node": "^10.9.4",
-    "@types/react": "^16.4.13",
-    "@types/react-dom": "^16.0.7",
     "chart.js": "^2.7.2",
     "prettier": "^1.14.2",
     "react-chartjs-2": "^2.7.4",
@@ -60,7 +63,7 @@
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js --env=jsdom",
-    "lintfix": "prettier src/styles/**/*.css src/**/*.tsx src/**/*.ts --write"
+    "lintfix": "prettier src/styles/**/*.css src/**/*.tsx src/**/*.ts --write && tsfmt --no-tslint --no-editorconfig --no-vscode --no-tsfmt -r"
   },
   "jest": {
     "collectCoverageFrom": [
