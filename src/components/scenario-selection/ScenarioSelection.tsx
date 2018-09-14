@@ -38,10 +38,10 @@ class ScenarioSelection extends React.Component<Partial<IETFState & {setValue: (
             onInputChange={this.setStartDate}
             options={compose(
               map((year: number) => ({
-                label: this.props.startYear,
-                value: this.props.startYear
+                label: year,
+                value: year
               })),
-              () => range(1971, 2018)
+              () => range(1971, 2019)
             )()}
           />
         </div>
@@ -53,10 +53,10 @@ class ScenarioSelection extends React.Component<Partial<IETFState & {setValue: (
             onInputChange={this.setEndDate}
             options={compose(
               map((year: number) => ({
-                label: this.props.endYear,
-                value: this.props.endYear
+                label: year,
+                value: year
               })),
-              () => range(1971, 2018)
+              () => range(1971, 2019)
             )()
             }
           />
