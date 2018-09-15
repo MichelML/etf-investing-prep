@@ -1,7 +1,5 @@
-import { compose, map, range } from "lodash/fp";
 import * as React from "react";
 import { connect } from "react-redux";
-import Select from "react-select";
 import { Actions } from "../../Actions";
 import { setValue } from "../../ReducerGenerator";
 import { IETFState } from "../../Reducers";
@@ -30,36 +28,18 @@ class ScenarioSelection extends React.Component<Partial<IETFState & { setValue: 
     public render() {
         return (
             <div className="row">
-                <div className="col-xs-10 col-xs-offset-1 col-md-4 col-md-offset-1">
-                    <label htmlFor={"start-year"}>Start from year: </label>
-                    <Select
-                        id="start-year"
-                        defaultValue={{ label: 1971, value: 1971 }}
-                        onInputChange={this.setStartDate}
-                        options={compose(
-                            map((year: number) => ({
-                                label: year,
-                                value: year
-                            })),
-                            () => range(1971, 2019)
-                        )()}
-                    />
-                </div>
-                <div className="col-xs-10 col-xs-offset-1 col-md-4 col-md-offset-1">
-                    <label htmlFor={"start-year"}>Start from year: </label>
-                    <Select
-                        id="start-year"
-                        defaultValue={{ label: 2018, value: 2018 }}
-                        onInputChange={this.setEndDate}
-                        options={compose(
-                            map((year: number) => ({
-                                label: year,
-                                value: year
-                            })),
-                            () => range(1971, 2019)
-                        )()}
-                    />
-                </div>
+                <NumberInput
+                    id="start-year"
+                    label="Start from year: "
+                    value={this.props.startYear}
+                    onChange={this.setStartDate}
+                />
+                <NumberInput
+                    id="end-year"
+                    label="End at year: "
+                    value={this.props.endYear}
+                    onChange={this.setEndDate}
+                />
                 <NumberInput
                     id="monthly-investment-average"
                     label="Monthly investment average ($): "
@@ -88,15 +68,15 @@ class ScenarioSelection extends React.Component<Partial<IETFState & { setValue: 
         );
     }
 
-    private setStartDate(value: string, ...args: any[]) {
+    private setStartDate(e: React.ChangeEvent<HTMLInputElement>) {
         if (this.props.setValue) {
-            this.props.setValue(Actions.setStartDate, parseInt(value, 10));
+            this.props.setValue(Actions.setStartDate, e.target.value);
         }
     }
 
-    private setEndDate(value: string, ...args: any[]) {
+    private setEndDate(e: React.ChangeEvent<HTMLInputElement>) {
         if (this.props.setValue) {
-            this.props.setValue(Actions.setEndDate, parseInt(value, 10));
+            this.props.setValue(Actions.setEndDate, e.target.value);
         }
     }
     private setMonthlyInvestment(e: React.ChangeEvent<HTMLInputElement>) {

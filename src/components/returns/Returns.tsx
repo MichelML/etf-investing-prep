@@ -13,6 +13,8 @@ DataWilshireGDPClean.forEach((dataPoint, i, arr) => {
     dataPoint.RATIO = typeof dataPoint.RATIO === "number" ? dataPoint.RATIO : arr[i - 1].RATIO;
 });
 const DataWilshireGDPMap = DataWilshireGDPClean.reduce((acc, val) => ({...acc, [val.DATE]: val}), {});
+DataWilshireGDPMap['2018-07-01'] = DataWilshireGDPMap['2018-04-01'];
+DataWilshireGDPMap['2018-10-01'] = DataWilshireGDPMap['2018-04-01'];
 
 const DataWilshireClean = cloneDeep(DataWilshire);
 DataWilshireClean.forEach((dataPoint, i, arr) => {
@@ -33,28 +35,28 @@ class Returns extends React.Component<Partial<IETFState>> {
                     <h2>Returns</h2>
                     <div className="row">
                         <div className='col-xs-12 col-md-6'>
-                            Total cash invested: {this.getTotalAmountInvested(this.props)} $
-              </div>
+                            Total cash invested: {this.getTotalAmountInvested()} $
+                        </div>
                         <div className='col-xs-12 col-md-6'>
                             Total cash after period of investment: {this.computeTotalReturns()} $
-              </div>
+                        </div>
                     </div>
                     <Line
                         data={{
                             datasets: [
                                 {
-                                    borderColor: "blue",
-                                    data: DataWilshireGDPClean.map(data => (typeof data.RATIO === "number" ? data.RATIO : 0)),
+                                    borderColor: "green",
+                                    data: this.getCompoundedReturns(),
                                     fill: false,
-                                    label: "Example"
+                                    label: `Yearly Compounded Returns based on Wilshire 500 and GDP - ${this.props.startYear}-${this.props.endYear}`
                                 }
                             ],
-                            labels: DataWilshireGDPClean.map(data => data.DATE)
+                            labels: range(parseInt(this.props.startYear.toString(), 10), parseInt(this.props.endYear.toString(), 10) + 1).map((val) => val.toString())
                         }}
                     />
                 </div>
             )
-            : <div className='red'>Invalid</div>;
+            : <div className="col-xs-10 col-xs-offset-1"><div className='red'>Something went wrong. Check if the values provided are valid and make common sense.</div></div>;
     }
 
     private isValidScenario(): boolean {
@@ -72,18 +74,27 @@ class Returns extends React.Component<Partial<IETFState>> {
             && isNumber(parseFloat(this.props.ratioWeight.toString()));
     }
 
-    private getTotalAmountInvested({monthlyInvestment, startYear, endYear}: Partial<IETFState>) {
-        return (monthlyInvestment || 0) * ((endYear || 0) - (startYear || 0)) * 4;
+    private getTotalAmountInvested(): number {
+        const startYear = this.props.startYear || 1971;
+        const endYear = this.props.endYear || 2018;
+
+        return this.roundToTwoDecimalPoints(
+            compose(
+                reduce((totalAmount: number, amountInvestedFor12Months: number[]) => totalAmount + sum(amountInvestedFor12Months), 0),
+                map((year: number) => Returns.months.map((month) => this.getAmountInvested(DataWilshireGDPMap[`${year}-${this.getNearestMonthForStockGDPRatio(month)}-01`].RATIO))),
+                () => range(startYear, endYear + 1),
+            )(),
+        );
     }
 
-    private computeTotalReturns(): number {
+    private computeTotalReturns(endY?: number): number {
         const startYear = this.props.startYear || 0;
-        const endYear = this.props.endYear || 1;
+        const endYear = endY || this.props.endYear || 1;
         const stockEndYear = find(DataWilshireClean, {DATE: this.getFirstWednesdayOfMonth(endYear, "09" as Month)});
         const stockPriceEndYear = stockEndYear && parseFloat(stockEndYear.Price.toString()) || 0;
 
         return this.roundToTwoDecimalPoints(compose(
-            reduce((totalReturn, returnsFor12Months) => totalReturn + sum(returnsFor12Months as number[]), 0),
+            reduce((totalReturn: number, returnsFor12Months: number[]) => totalReturn + sum(returnsFor12Months), 0),
             map((year: number) => {
                 const returnsFor12Months = Returns.months.map((month) => {
                     const currentStock = find(DataWilshireClean, {DATE: this.getFirstWednesdayOfMonth(year, month)});
@@ -99,11 +110,21 @@ class Returns extends React.Component<Partial<IETFState>> {
         )());
     }
 
+    private getCompoundedReturns(): number[] {
+        const startYear = this.props.startYear || 1971;
+        const endYear = this.props.endYear || 2018;
+
+        return compose(
+            map((year: number) => this.computeTotalReturns(year)),
+            () => range(startYear, endYear + 1),
+        )();
+    }
+
 
     private getAmountInvested(stockGDPRatio: number): number {
         const {orZero} = this;
-
-        return (orZero(this.props.monthlyInvestment) - orZero(this.props.monthlyTransactionCost)) * (1 - orZero(this.props.managerialCost)) * ((1 / (orZero(stockGDPRatio)) * orZero(this.props.ratioWeight)));
+        const amountMultiplier = orZero(this.props.ratioWeight) === 0 ? 1 : (1 / (orZero(stockGDPRatio)) * orZero(this.props.ratioWeight));
+        return (orZero(this.props.monthlyInvestment) - orZero(this.props.monthlyTransactionCost)) * (1 - orZero(this.props.managerialCost)) * amountMultiplier;
     }
 
     private orZero(val?: number | string) {
