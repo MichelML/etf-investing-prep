@@ -13,7 +13,7 @@ export interface IETFState {
 
 export const Reducers: Reducer<IETFState> = combineReducers<IETFState>({
     endYear: ReducerGenerator(Actions.setEndDate, 2018),
-    managerialCost: ReducerGenerator(Actions.setMonthlyInvestment, 0.5),
+    managerialCost: ReducerGenerator(Actions.setManagerialCost, 0.5),
     monthlyInvestment: ReducerGenerator(Actions.setMonthlyInvestment, 500),
     monthlyTransactionCost: ReducerGenerator(Actions.setMonthlyTransactionCost, 30),
     ratioWeight: ReducerGenerator(Actions.setRatioWeight, 1),

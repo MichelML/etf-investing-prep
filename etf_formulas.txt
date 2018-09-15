@@ -1,0 +1,8 @@
+for each month
+	you invest an (amount - transactionalAndManagerialCost) * ((1/(stock/gdp ratio)) * ratioWeight)
+
+return for one unit (month) of investment
+	amount * ((end point stock price) / (start point stock price))
+
+return for all units
+	sum of all ((monthly amount) * ((end point stock price) / (start point stock price)))
