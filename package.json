@@ -63,7 +63,7 @@
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js --env=jsdom",
-    "lintfix": "tslint --fix --project tsconfig.json &&  tsfmt --no-tslint --no-editorconfig --no-vscode --no-tsfmt -r"
+    "lintfix": "tslint --fix --project tsconfig.json"
   },
   "jest": {
     "collectCoverageFrom": [
