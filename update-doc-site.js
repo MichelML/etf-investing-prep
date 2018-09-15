@@ -9,3 +9,4 @@ execSync(`git config --global user.name "${process.env.u}"`);
     `git commit -m "update doc site ${Date.now()}"`,
     `git push ${originWithAuthentication} master`, 
 ].forEach((cmd) => console.log(cmd, {encoding: 'utf-8'}));
+
