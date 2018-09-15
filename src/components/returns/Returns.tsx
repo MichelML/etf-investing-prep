@@ -1,18 +1,18 @@
-import {cloneDeep, find, isNumber, sum} from "lodash";
-import {compose, map, range, reduce} from "lodash/fp";
+import { cloneDeep, find, isNumber, sum } from "lodash";
+import { compose, map, range, reduce } from "lodash/fp";
 import * as React from "react";
-import {Line} from "react-chartjs-2";
-import {connect} from "react-redux";
-import {DataWilshire} from "../../DataWilshire";
-import {DataWilshireGDP} from "../../DataWilshireGDP";
-import {IETFState} from "../../Reducers";
-import {Month} from "../../types/Months";
+import { Line } from "react-chartjs-2";
+import { connect } from "react-redux";
+import { DataWilshire } from "../../DataWilshire";
+import { DataWilshireGDP } from "../../DataWilshireGDP";
+import { IETFState } from "../../Reducers";
+import { Month } from "../../types/Months";
 
 const DataWilshireGDPClean = cloneDeep(DataWilshireGDP);
 DataWilshireGDPClean.forEach((dataPoint, i, arr) => {
     dataPoint.RATIO = typeof dataPoint.RATIO === "number" ? dataPoint.RATIO : arr[i - 1].RATIO;
 });
-const DataWilshireGDPMap = DataWilshireGDPClean.reduce((acc, val) => ({...acc, [val.DATE]: val}), {});
+const DataWilshireGDPMap = DataWilshireGDPClean.reduce((acc, val) => ({ ...acc, [val.DATE]: val }), {});
 DataWilshireGDPMap['2018-07-01'] = DataWilshireGDPMap['2018-04-01'];
 DataWilshireGDPMap['2018-10-01'] = DataWilshireGDPMap['2018-04-01'];
 
@@ -29,34 +29,48 @@ class Returns extends React.Component<Partial<IETFState>> {
     public static months: Month[] = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
 
     public render() {
-        return this.isValidScenario()
-            ? (
-                <div className="col-xs-10 col-xs-offset-1">
-                    <h2>Returns</h2>
-                    <div className="row">
-                        <div className='col-xs-12 col-md-6'>
-                            Total cash invested: {this.getTotalAmountInvested()} $
-                        </div>
-                        <div className='col-xs-12 col-md-6'>
-                            Total cash after period of investment: {this.computeTotalReturns()} $
-                        </div>
-                    </div>
-                    <Line
-                        data={{
-                            datasets: [
-                                {
-                                    borderColor: "green",
-                                    data: this.getCompoundedReturns(),
-                                    fill: false,
-                                    label: `Yearly Compounded Returns based on Wilshire 500 and GDP - ${this.props.startYear}-${this.props.endYear}`
-                                }
-                            ],
-                            labels: range(parseInt(this.props.startYear.toString(), 10), parseInt(this.props.endYear.toString(), 10) + 1).map((val) => val.toString())
-                        }}
-                    />
-                </div>
-            )
-            : <div className="col-xs-10 col-xs-offset-1"><div className='red'>Something went wrong. Check if the values provided are valid and make common sense.</div></div>;
+        const isValidScenario = this.isValidScenario();
+
+        const totalAmountInvested = isValidScenario && this.getTotalAmountInvested();
+        const totalReturns = isValidScenario && this.computeTotalReturns();
+        const growth = isValidScenario && Math.round(totalReturns / totalAmountInvested) * 100;
+    
+        return (
+            <div className="col-xs-10 col-xs-offset-1">
+                <h2>Returns</h2>
+                {isValidScenario
+                    ? (
+                        <>
+                            <div className="row">
+                                <div className='col-xs-12 col-md-6 col-lg-4'>
+                                    Total cash invested: {totalAmountInvested} $
+                                </div>
+                                <div className='col-xs-12 col-md-6 col-lg-4'>
+                                    Total cash after period of investment: {totalReturns} $
+                                </div>
+                                <div className='col-xs-12 col-md-6 col-lg-4'>
+                                    Growth: {growth} %
+                                </div>
+                            </div>
+                            <Line
+                                data={{
+                                    datasets: [
+                                        {
+                                            borderColor: "green",
+                                            data: this.getCompoundedReturns(),
+                                            fill: false,
+                                            label: `Yearly Compounded Returns based on Wilshire 500 and GDP - ${this.props.startYear}-${this.props.endYear}`
+                                        }
+                                    ],
+                                    labels: range(parseInt(this.props.startYear.toString(), 10), parseInt(this.props.endYear.toString(), 10) + 1).map((val) => val.toString())
+                                }}
+                            />
+                        </>
+                    )
+                    : <div className="col-xs-10 col-xs-offset-1"><div className='red'>Something went wrong. Check if the values provided are valid and make common sense.</div></div>
+                }
+            </div>
+        );
     }
 
     private isValidScenario(): boolean {
@@ -75,8 +89,8 @@ class Returns extends React.Component<Partial<IETFState>> {
     }
 
     private getTotalAmountInvested(): number {
-        const startYear = this.props.startYear || 1971;
-        const endYear = this.props.endYear || 2018;
+        const startYear = parseInt(this.props.startYear.toString(), 10) || 1971;
+        const endYear = parseInt(this.props.endYear.toString(), 10) || 2018;
 
         return this.roundToTwoDecimalPoints(
             compose(
@@ -90,14 +104,14 @@ class Returns extends React.Component<Partial<IETFState>> {
     private computeTotalReturns(endY?: number): number {
         const startYear = this.props.startYear || 0;
         const endYear = endY || this.props.endYear || 1;
-        const stockEndYear = find(DataWilshireClean, {DATE: this.getFirstWednesdayOfMonth(endYear, "09" as Month)});
+        const stockEndYear = find(DataWilshireClean, { DATE: this.getFirstWednesdayOfMonth(endYear, "09" as Month) });
         const stockPriceEndYear = stockEndYear && parseFloat(stockEndYear.Price.toString()) || 0;
 
         return this.roundToTwoDecimalPoints(compose(
             reduce((totalReturn: number, returnsFor12Months: number[]) => totalReturn + sum(returnsFor12Months), 0),
             map((year: number) => {
                 const returnsFor12Months = Returns.months.map((month) => {
-                    const currentStock = find(DataWilshireClean, {DATE: this.getFirstWednesdayOfMonth(year, month)});
+                    const currentStock = find(DataWilshireClean, { DATE: this.getFirstWednesdayOfMonth(year, month) });
                     const currentStockPrice = currentStock && parseFloat(currentStock.Price.toString()) || 0;
 
                     return !!currentStockPrice
@@ -122,7 +136,7 @@ class Returns extends React.Component<Partial<IETFState>> {
 
 
     private getAmountInvested(stockGDPRatio: number): number {
-        const {orZero} = this;
+        const { orZero } = this;
         const amountMultiplier = orZero(this.props.ratioWeight) === 0 ? 1 : (1 / (orZero(stockGDPRatio)) * orZero(this.props.ratioWeight));
         return (orZero(this.props.monthlyInvestment) - orZero(this.props.monthlyTransactionCost)) * (1 - orZero(this.props.managerialCost)) * amountMultiplier;
     }
@@ -169,8 +183,8 @@ class Returns extends React.Component<Partial<IETFState>> {
         let day = '' + d.getDate();
         const year = d.getFullYear();
 
-        if (month.length < 2) {month = '0' + month};
-        if (day.length < 2) {day = '0' + day};
+        if (month.length < 2) { month = '0' + month };
+        if (day.length < 2) { day = '0' + day };
 
         return [year, month, day].join('-');
     }
