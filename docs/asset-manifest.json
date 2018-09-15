@@ -1,6 +1,6 @@
 {
-  "main.css": "https://raw.githubusercontent.com/MichelML/etf-investing-prep/master/docs/static/css/main.46d2fd0b.css",
-  "main.css.map": "https://raw.githubusercontent.com/MichelML/etf-investing-prep/master/docs/static/css/main.46d2fd0b.css.map",
-  "main.js": "https://raw.githubusercontent.com/MichelML/etf-investing-prep/master/docs/static/js/main.185dc622.js",
-  "main.js.map": "https://raw.githubusercontent.com/MichelML/etf-investing-prep/master/docs/static/js/main.185dc622.js.map"
+  "main.css": "static/css/main.46d2fd0b.css",
+  "main.css.map": "static/css/main.46d2fd0b.css.map",
+  "main.js": "static/js/main.b2d0be08.js",
+  "main.js.map": "static/js/main.b2d0be08.js.map"
 }
