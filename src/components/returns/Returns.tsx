@@ -33,7 +33,7 @@ class Returns extends React.Component<Partial<IETFState>> {
 
         const totalAmountInvested = isValidScenario && this.getTotalAmountInvested();
         const totalReturns = isValidScenario && this.computeTotalReturns();
-        const growth = isValidScenario && Math.round(totalReturns / totalAmountInvested) * 100;
+        const growth = isValidScenario && this.roundToTwoDecimalPoints(totalReturns / totalAmountInvested * 100);
     
         return (
             <div className="col-xs-10 col-xs-offset-1">
